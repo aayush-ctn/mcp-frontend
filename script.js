@@ -3,6 +3,8 @@ const SET_API_KEY_URL = `${BASE_URL}/api/front/set-api-key`;
 const CHAT_URL = `${BASE_URL}/mcp/handle-chat`;
 
 let authToken = null;
+let sessionUuid = null; // Store session UUID
+let userUuid = null; // Store user UUID
 
 // Set API Key function
 async function setApiKey() {
@@ -45,6 +47,10 @@ async function setApiKey() {
             throw new Error("No token received from server");
         }
         
+        // Reset session when setting new API key
+        sessionUuid = null;
+        userUuid = null;
+        
         // Hide API setup, show chat
         document.getElementById("api-setup-container").style.display = "none";
         document.getElementById("chat-container").style.display = "flex";
@@ -60,6 +66,8 @@ async function setApiKey() {
 // Reset API Key function
 function resetApiKey() {
     authToken = null;
+    sessionUuid = null;
+    userUuid = null;
     document.getElementById("api-setup-container").style.display = "flex";
     document.getElementById("chat-container").style.display = "none";
     document.getElementById("chat-box").innerHTML = "";
@@ -105,17 +113,30 @@ async function sendMessage() {
     input.value = "";
     
     try {
+        // Build request body
+        const requestBody = {
+            prompt: message,
+            model: "gpt-4o-mini",
+            provider: "CHATGPT"
+        };
+        
+        // Add session_uuid and user_uuid if they exist (for continuing conversation)
+        if (sessionUuid) {
+            requestBody.session_uuid = sessionUuid;
+        }
+        if (userUuid) {
+            requestBody.user_uuid = userUuid;
+        }
+        
+        console.log("Request body:", requestBody); // Debug log
+        
         const response = await fetch(CHAT_URL, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "token": authToken  // CHANGED: Send token in custom "token" header instead of Authorization
+                "token": authToken
             },
-            body: JSON.stringify({ 
-                prompt: message,  // CHANGED: Your backend expects "prompt" not "message"
-                model: "gpt-4o-mini",   // Add your default model
-                provider: "CHATGPT" // Add your default provider
-            })
+            body: JSON.stringify(requestBody)
         });
         
         if (!response.ok) {
@@ -127,8 +148,19 @@ async function sendMessage() {
         }
         
         const data = await response.json();
+        console.log("Response data:", data); // Debug log
         
-        // Display the bot's response - your backend returns "response" field
+        // Store session_uuid and user_uuid from the first response
+        if (data.data?.session_uuid) {
+            sessionUuid = data.data.session_uuid;
+            console.log("Session UUID stored:", sessionUuid);
+        }
+        if (data.data?.user_uuid) {
+            userUuid = data.data.user_uuid;
+            console.log("User UUID stored:", userUuid);
+        }
+        
+        // Display the bot's response
         const botMessage = data.data?.response || data.response || data.message || JSON.stringify(data);
         addMessage(botMessage, "bot");
         
@@ -140,4 +172,12 @@ async function sendMessage() {
             setTimeout(() => resetApiKey(), 2000);
         }
     }
+}
+
+// Optional: Add a "New Conversation" button functionality
+function startNewConversation() {
+    sessionUuid = null;
+    userUuid = null;
+    document.getElementById("chat-box").innerHTML = "";
+    addMessage("New conversation started!", "bot");
 }

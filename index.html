@@ -22,7 +22,10 @@
     <div id="chat-container" class="chat-container" style="display: none;">
         <div class="chat-header">
             <h3>Chat Application</h3>
-            <button onclick="resetApiKey()" class="reset-btn">Reset API Key</button>
+            <div class="header-buttons">
+                <button onclick="startNewConversation()" class="new-chat-btn">New Chat</button>
+                <button onclick="resetApiKey()" class="reset-btn">Reset API Key</button>
+            </div>
         </div>
         <div id="chat-box" class="chat-box"></div>
         <div class="input-container">
