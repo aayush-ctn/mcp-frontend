@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Application</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- API Key Setup Form -->
+    <div id="api-setup-container" class="api-setup-container">
+        <div class="api-setup-box">
+            <h2>Set API Key</h2>
+            <input type="text" id="user-id" placeholder="Enter User ID" />
+            <input type="text" id="api-key" placeholder="Enter API Key" />
+            <button onclick="setApiKey()">Continue</button>
+            <div id="setup-error" class="error"></div>
+        </div>
+    </div>
+
+    <!-- Chat Container (hidden initially) -->
+    <div id="chat-container" class="chat-container" style="display: none;">
+        <div class="chat-header">
+            <h3>Chat Application</h3>
+            <button onclick="resetApiKey()" class="reset-btn">Reset API Key</button>
+        </div>
+        <div id="chat-box" class="chat-box"></div>
+        <div class="input-container">
+            <input 
+                type="text" 
+                id="message-input" 
+                placeholder="Type your message..." 
+                onkeypress="if(event.key === 'Enter') sendMessage()"
+            />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
