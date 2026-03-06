@@ -3,42 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Application</title>
+    <title>MCP Dashboard</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- API Key Setup Form -->
-    <div id="api-setup-container" class="api-setup-container">
-        <div class="api-setup-box">
-            <h2>Set API Key</h2>
-            <input type="text" id="user-name" placeholder="Enter User Name" />
-            <input type="text" id="api-key" placeholder="Enter API Key" />
-            <button onclick="setApiKey()">Continue</button>
-            <div id="setup-error" class="error"></div>
+
+<!-- ── LOGIN ─────────────────────────────────────────────────────── -->
+<div id="api-screen" class="screen">
+    <div class="login-card">
+        <div class="login-logo">⚡</div>
+        <h2>MCP Dashboard</h2>
+        <p class="login-sub">Enter your credentials to continue</p>
+        <input id="user-name" placeholder="Username" autocomplete="username">
+        <input id="api-key"   placeholder="API Key" type="password">
+        <button onclick="setApiKey()">Sign In</button>
+        <p id="api-error"></p>
+    </div>
+</div>
+
+
+<!-- ── PROJECTS ──────────────────────────────────────────────────── -->
+<div id="project-screen" class="screen hidden">
+    <div class="page-header">
+        <div>
+            <h2>Projects</h2>
+            <p class="page-sub">Select a project to manage its tools</p>
         </div>
     </div>
 
-    <!-- Chat Container (hidden initially) -->
-    <div id="chat-container" class="chat-container" style="display: none;">
-        <div class="chat-header">
-            <h3>Chat Application</h3>
-            <div class="header-buttons">
-                <button onclick="startNewConversation()" class="new-chat-btn">New Chat</button>
-                <button onclick="resetApiKey()" class="reset-btn">Reset API Key</button>
-            </div>
+    <div id="project-list"></div>
+
+    <div class="create-box">
+        <h3>New Project</h3>
+        <input id="project-name" placeholder="Project name *">
+        <textarea id="project-desc" placeholder="Description (optional)"></textarea>
+        <button id="create-project-btn" onclick="createProject()">Create Project</button>
+    </div>
+</div>
+
+
+<!-- ── TOOLS ─────────────────────────────────────────────────────── -->
+<div id="tool-screen" class="screen hidden">
+    <div class="page-header">
+        <div>
+            <h2>Tools</h2>
+            <span id="active-project-label" class="project-pill"></span>
         </div>
-        <div id="chat-box" class="chat-box"></div>
-        <div class="input-container">
-            <input 
-                type="text" 
-                id="message-input" 
-                placeholder="Type your message..." 
-                onkeypress="if(event.key === 'Enter') sendMessage()"
-            />
-            <button onclick="sendMessage()">Send</button>
+        <div class="header-btns">
+            <button class="btn-ghost" onclick="showScreen('project-screen'); loadProjects()">← Projects</button>
+            <button onclick="goToChat()">Go to Chat →</button>
         </div>
     </div>
-    
-    <script src="script.js"></script>
+
+    <div id="tool-list"></div>
+
+    <div class="create-box">
+        <h3>New Tool</h3>
+        <div class="form-row">
+            <input id="tool-name" placeholder="Tool name * (letters, numbers, underscores)">
+            <select id="tool-method">
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="PATCH">PATCH</option>
+                <option value="DELETE">DELETE</option>
+            </select>
+        </div>
+        <input id="tool-url" placeholder="API URL *  e.g. https://api.example.com/endpoint">
+        <textarea id="tool-description" placeholder="Description * (what does this tool do?)"></textarea>
+        <textarea id="tool-headers" placeholder='Headers JSON  e.g. {"Content-Type":"application/json"}'></textarea>
+        <textarea id="tool-input-schema" placeholder='Input Schema JSON  e.g. {"type":"object","properties":{"q":{"type":"string"}}}'></textarea>
+        <div class="form-row">
+            <input id="tool-query-fields" placeholder="Query params — comma separated  e.g. q, page">
+            <input id="tool-body-fields"  placeholder="Body params — comma separated  e.g. name, email">
+        </div>
+        <button id="create-tool-btn" onclick="createTool()">Create Tool</button>
+    </div>
+</div>
+
+
+<!-- ── CHAT ───────────────────────────────────────────────────────── -->
+<div id="chat-screen" class="screen hidden">
+    <div class="chat-layout">
+
+        <!-- Sidebar -->
+        <div class="tool-sidebar">
+            <div class="sidebar-header">
+                <div>
+                    <h3>Tools</h3>
+                    <span id="chat-project-label" class="project-pill"></span>
+                </div>
+                <button class="btn-ghost btn-sm" onclick="goToTools()">← Back</button>
+            </div>
+            <p class="sidebar-hint">Toggle tools on/off for this chat session</p>
+            <div id="chat-tools"></div>
+        </div>
+
+        <!-- Chat -->
+        <div class="chat-area">
+            <div id="chat-box"></div>
+            <div class="chat-input-row">
+                <input id="message-input" placeholder="Type a message and press Enter..."
+                    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}">
+                <button onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="script.js"></script>
 </body>
 </html>
