@@ -304,7 +304,7 @@ async function toggleChatTool(id, btn) {
 
     try {
         const res  = await fetch(`${BASE_URL}/api/tools/toggle-status/${id}`, {
-            method: "PATCH",
+            method: "POST",
             headers: { "Content-Type": "application/json", token },
             body: JSON.stringify({ session_uuid: sessionUuid })
         })
