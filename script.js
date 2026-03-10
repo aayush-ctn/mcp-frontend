@@ -1,5 +1,59 @@
 const BASE_URL = "http://localhost:5001"
 
+/* ─── PARAM FIELD BUILDER ────────────────────────────────────────── */
+
+const PARAM_TYPES = ["string", "number", "boolean", "integer", "array", "object"]
+
+function addParamRow(listId, name = "", type = "string") {
+    const list = document.getElementById(listId)
+
+    const row = document.createElement("div")
+    row.className = "param-row"
+
+    const nameInput = document.createElement("input")
+    nameInput.className   = "param-name-input"
+    nameInput.placeholder = "Field name"
+    nameInput.value       = name
+
+    const typeSelect = document.createElement("select")
+    typeSelect.className = "param-type-select"
+    PARAM_TYPES.forEach(t => {
+        const opt = document.createElement("option")
+        opt.value       = t
+        opt.innerText   = t
+        opt.selected    = t === type
+        typeSelect.appendChild(opt)
+    })
+
+    const removeBtn = document.createElement("button")
+    removeBtn.type      = "button"
+    removeBtn.className = "btn-remove-param"
+    removeBtn.innerHTML = "✕"
+    removeBtn.title     = "Remove field"
+    removeBtn.addEventListener("click", () => row.remove())
+
+    row.appendChild(nameInput)
+    row.appendChild(typeSelect)
+    row.appendChild(removeBtn)
+    list.appendChild(row)
+}
+
+function collectParamRows(listId) {
+    const list = document.getElementById(listId)
+    const result = {}
+    list.querySelectorAll(".param-row").forEach(row => {
+        const name = row.querySelector(".param-name-input").value.trim()
+        const type = row.querySelector(".param-type-select").value
+        if (name) result[name] = type
+    })
+    return result
+}
+
+function resetParamList(listId) {
+    document.getElementById(listId).innerHTML = ""
+}
+
+
 let token     = null   // Token 1 — from loginUser, for projects/tools APIs
 let chatToken = null   // Token 2 — from setApiKey, for mcp/handle-chat
 let userName  = null
@@ -255,8 +309,7 @@ async function createTool() {
     const url          = document.getElementById("tool-url").value.trim()
     const method       = document.getElementById("tool-method").value
     const headersText  = document.getElementById("tool-headers").value.trim()
-    const queryText    = document.getElementById("tool-query-fields").value.trim()
-    const bodyText     = document.getElementById("tool-body-fields").value.trim()
+    // query/body params are read from dynamic rows
     const authRequired = document.getElementById("tool-auth-required").checked
     const authType     = document.getElementById("tool-auth-type").value
 
@@ -273,11 +326,8 @@ async function createTool() {
         return
     }
 
-    const queryParamFields = {}
-    if (queryText) queryText.split(",").map(v => v.trim()).filter(Boolean).forEach(k => queryParamFields[k] = "string")
-
-    const bodyParamFields = {}
-    if (bodyText) bodyText.split(",").map(v => v.trim()).filter(Boolean).forEach(k => bodyParamFields[k] = "string")
+    const queryParamFields = collectParamRows("query-params-list")
+    const bodyParamFields  = collectParamRows("body-params-list")
 
     const payload = {
         project_id: projectId, name, description, url, method,
@@ -302,8 +352,10 @@ async function createTool() {
     btn.disabled = false; btn.innerText = "Create Tool"
     if (!res.ok) { alert("Error: " + (result?.message || "Failed to create tool")); return }
 
-    ;["tool-name","tool-description","tool-url","tool-headers","tool-query-fields","tool-body-fields"]
+    ;["tool-name","tool-description","tool-url","tool-headers"]
         .forEach(id => document.getElementById(id).value = "")
+    resetParamList("query-params-list")
+    resetParamList("body-params-list")
     document.getElementById("tool-method").value = "GET"
     document.getElementById("tool-auth-required").checked = false
     document.getElementById("auth-fields").classList.add("hidden")

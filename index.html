@@ -70,9 +70,26 @@
         <input id="tool-url" placeholder="API URL *  e.g. https://api.example.com/endpoint">
         <textarea id="tool-description" placeholder="Description * (what does this tool do?)"></textarea>
         <textarea id="tool-headers" placeholder='Headers JSON  e.g. {"Content-Type":"application/json"}'></textarea>
-        <div class="form-row">
-            <input id="tool-query-fields" placeholder="Query params — comma separated  e.g. q, page">
-            <input id="tool-body-fields"  placeholder="Body params — comma separated  e.g. name, email">
+        <!-- Query Params -->
+        <div class="param-section">
+            <div class="param-section-header">
+                <span class="param-section-label">Query Parameters</span>
+                <button type="button" class="btn-add-param" onclick="addParamRow('query-params-list')">+ Add</button>
+            </div>
+            <div id="query-params-list" class="param-list">
+                <!-- rows injected by JS -->
+            </div>
+        </div>
+
+        <!-- Body Params -->
+        <div class="param-section">
+            <div class="param-section-header">
+                <span class="param-section-label">Body Parameters</span>
+                <button type="button" class="btn-add-param" onclick="addParamRow('body-params-list')">+ Add</button>
+            </div>
+            <div id="body-params-list" class="param-list">
+                <!-- rows injected by JS -->
+            </div>
         </div>
         <div class="auth-section">
             <label class="auth-toggle-label">
