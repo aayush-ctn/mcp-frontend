@@ -13,10 +13,11 @@
     <div class="login-card">
         <div class="login-logo">⚡</div>
         <h2>MCP Dashboard</h2>
-        <p class="login-sub">Enter your credentials to continue</p>
+        <p class="login-sub">Enter your username to sign in</p>
         <input id="user-name" placeholder="Username" autocomplete="username">
-        <input id="api-key"   placeholder="API Key" type="password">
-        <button onclick="setApiKey()">Sign In</button>
+        <button onclick="loginUser()">Sign In</button>
+        <div class="login-divider"><span>or</span></div>
+        <button class="btn-ghost btn-full" onclick="createUser()">Create Account</button>
         <p id="api-error"></p>
     </div>
 </div>
@@ -29,10 +30,9 @@
             <h2>Projects</h2>
             <p class="page-sub">Select a project to manage its tools</p>
         </div>
+        <button class="btn-ghost btn-sm" onclick="logout()">Sign Out</button>
     </div>
-
     <div id="project-list"></div>
-
     <div class="create-box">
         <h3>New Project</h3>
         <input id="project-name" placeholder="Project name *">
@@ -51,12 +51,10 @@
         </div>
         <div class="header-btns">
             <button class="btn-ghost" onclick="showScreen('project-screen'); loadProjects()">← Projects</button>
-            <button onclick="goToChat()">Go to Chat →</button>
+            <button onclick="goToApiKeyScreen()">Go to Chat →</button>
         </div>
     </div>
-
     <div id="tool-list"></div>
-
     <div class="create-box">
         <h3>New Tool</h3>
         <div class="form-row">
@@ -72,12 +70,38 @@
         <input id="tool-url" placeholder="API URL *  e.g. https://api.example.com/endpoint">
         <textarea id="tool-description" placeholder="Description * (what does this tool do?)"></textarea>
         <textarea id="tool-headers" placeholder='Headers JSON  e.g. {"Content-Type":"application/json"}'></textarea>
-        <textarea id="tool-input-schema" placeholder='Input Schema JSON  e.g. {"type":"object","properties":{"q":{"type":"string"}}}'></textarea>
         <div class="form-row">
             <input id="tool-query-fields" placeholder="Query params — comma separated  e.g. q, page">
             <input id="tool-body-fields"  placeholder="Body params — comma separated  e.g. name, email">
         </div>
+        <div class="auth-section">
+            <label class="auth-toggle-label">
+                <input type="checkbox" id="tool-auth-required" onchange="toggleAuthFields()">
+                <span>This tool requires authentication</span>
+            </label>
+            <div id="auth-fields" class="auth-fields hidden">
+                <select id="tool-auth-type">
+                    <option value="bearer">Bearer Token</option>
+                    <option value="api_key">API Key</option>
+                    <option value="basic">Basic Auth</option>
+                </select>
+            </div>
+        </div>
         <button id="create-tool-btn" onclick="createTool()">Create Tool</button>
+    </div>
+</div>
+
+
+<!-- ── API KEY SETUP ──────────────────────────────────────────────── -->
+<div id="apikey-screen" class="screen hidden">
+    <div class="login-card">
+        <div class="login-logo">🔑</div>
+        <h2>Set API Key</h2>
+        <p class="login-sub">Enter your LLM API key to start chatting</p>
+        <input id="chat-api-key" placeholder="API Key" type="password">
+        <button onclick="setApiKeyAndGoToChat()">Start Chatting</button>
+        <button class="btn-ghost btn-full" onclick="goToTools()">← Back to Tools</button>
+        <p id="apikey-error"></p>
     </div>
 </div>
 
@@ -109,6 +133,28 @@
             </div>
         </div>
 
+    </div>
+</div>
+
+
+<!-- ── AUTH MODAL ─────────────────────────────────────────────────── -->
+<div id="auth-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+        <h3 id="auth-modal-title">Provide Authentication</h3>
+        <p id="auth-modal-desc" class="modal-desc"></p>
+
+        <label class="modal-label">Header Name</label>
+        <input id="auth-modal-header-key" placeholder='e.g. X-Api-Key, Authorization, apikey'>
+        <p class="modal-field-hint" id="auth-modal-header-hint"></p>
+
+        <label class="modal-label">Value</label>
+        <input id="auth-modal-value" placeholder="Enter credential value..." type="password">
+
+        <div class="modal-btns">
+            <button class="btn-ghost" onclick="closeAuthModal()">Cancel</button>
+            <button onclick="confirmSaveToolAuth()">Save &amp; Continue</button>
+        </div>
+        <p id="auth-modal-error"></p>
     </div>
 </div>
 
